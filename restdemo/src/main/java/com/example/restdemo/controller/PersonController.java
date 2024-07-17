@@ -52,6 +52,29 @@ public class PersonController {
         return service.addMessageToPerson(p_id, message);
     }
 
+    @GetMapping("/person/{p_id}/message")
+    public ResponseEntity<Iterable<Message>> getMessages(@PathVariable int p_id) {
+        Optional<Person> personOptional = repository.findById(p_id);
+        if(personOptional.isPresent()) {
+            Person person = personOptional.get();
+            return new ResponseEntity<>(person.getMessages(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/person/{p_id}/message/{m_id}")
+    public ResponseEntity<Message> findMessageById(@PathVariable int p_id, @PathVariable int m_id) {
+        Optional<Person> personOptional = repository.findById(p_id);
+        if (personOptional.isPresent()) {
+            Person person = personOptional.get();
+            Optional<Message> messageOptional = person.getMessages().stream().filter(msg -> msg.getId() == m_id).findFirst();
+            if(messageOptional.isPresent()) {
+                return new ResponseEntity<>(messageOptional.get(), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     @DeleteMapping("/person/{p_id}/message/{m_id}")
     public void deleteMessage(@PathVariable int p_id, @PathVariable int m_id) {
         Optional<Person> personOptional = repository.findById(p_id);
