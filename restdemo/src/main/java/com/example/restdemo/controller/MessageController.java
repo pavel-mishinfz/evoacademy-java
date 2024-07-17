@@ -1,46 +1,44 @@
 package com.example.restdemo.controller;
 
 import com.example.restdemo.dto.Message;
+import com.example.restdemo.repository.MessageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class MessageController {
-    private List<Message> messages = new ArrayList<>();
+    @Autowired
+    private MessageRepository repository;
 
     @PostMapping("/message")
     public Message addMessage(@RequestBody Message message) {
-        messages.add(message);
+        repository.save(message);
         return message;
     }
 
     @GetMapping("/message")
     public Iterable<Message> getMessages() {
-        return messages;
+        return repository.findAll();
     }
 
     @GetMapping("/message/{id}")
     public Optional<Message> getMessage(@PathVariable int id) {
-        return messages.stream().filter(msg -> msg.getId() == id).findFirst();
+        return repository.findById(id);
     }
 
     @PutMapping("/message/{id}")
-    public Message updateMessage(@PathVariable int id, @RequestBody Message message) {
-        int index = -1;
-        for (Message msg : messages) {
-            if(msg.getId() == id) {
-                index = messages.indexOf(msg);
-                messages.set(index, message);
-            }
-        }
-        return index == -1 ? addMessage(message) : message;
+    public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
+        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
+        message.setId(id);
+        return new ResponseEntity<>(repository.save(message), status);
     }
 
     @DeleteMapping("/message/{id}")
     public void deleteMessage(@PathVariable int id) {
-        messages.removeIf(msg -> msg.getId() == id);
+        repository.deleteById(id);
     }
 }
