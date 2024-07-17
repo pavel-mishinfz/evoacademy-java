@@ -48,7 +48,7 @@ public class PersonController {
     }
 
     @PostMapping("/person/{id}/message")
-    public Person addMessage(@PathVariable int id, @RequestBody Message message) {
+    public ResponseEntity<Person> addMessage(@PathVariable int id, @RequestBody Message message) {
         return service.addMessageToPerson(id, message);
     }
 }
