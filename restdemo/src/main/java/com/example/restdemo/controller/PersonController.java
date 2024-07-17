@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @RestController
@@ -54,35 +55,17 @@ public class PersonController {
 
     @GetMapping("/person/{p_id}/message")
     public ResponseEntity<Iterable<Message>> getMessages(@PathVariable int p_id) {
-        Optional<Person> personOptional = repository.findById(p_id);
-        if(personOptional.isPresent()) {
-            Person person = personOptional.get();
-            return new ResponseEntity<>(person.getMessages(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return service.getMessagesOfPerson(p_id);
     }
 
     @GetMapping("/person/{p_id}/message/{m_id}")
-    public ResponseEntity<Message> findMessageById(@PathVariable int p_id, @PathVariable int m_id) {
-        Optional<Person> personOptional = repository.findById(p_id);
-        if (personOptional.isPresent()) {
-            Person person = personOptional.get();
-            Optional<Message> messageOptional = person.getMessages().stream().filter(msg -> msg.getId() == m_id).findFirst();
-            if(messageOptional.isPresent()) {
-                return new ResponseEntity<>(messageOptional.get(), HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Optional<Message>> findMessageById(@PathVariable int p_id, @PathVariable int m_id) {
+        return service.findMessageOfPersonById(p_id, m_id);
     }
 
     @DeleteMapping("/person/{p_id}/message/{m_id}")
     public void deleteMessage(@PathVariable int p_id, @PathVariable int m_id) {
-        Optional<Person> personOptional = repository.findById(p_id);
-        if(personOptional.isPresent()) {
-            Person person = personOptional.get();
-            person.getMessages().removeIf(msg -> msg.getId() == m_id);
-            repository.save(person);
-        }
+        service.deleteMessageOfPerson(p_id, m_id);
     }
 
 }

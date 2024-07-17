@@ -27,4 +27,32 @@ public class PersonService {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    public ResponseEntity<Iterable<Message>> getMessagesOfPerson(int personId) {
+        Optional<Person> personOptional = repository.findById(personId);
+        if(personOptional.isPresent()) {
+            Person person = personOptional.get();
+            return new ResponseEntity<>(person.getMessages(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<Optional<Message>> findMessageOfPersonById(int personId, int messageId) {
+        Optional<Person> personOptional = repository.findById(personId);
+        if (personOptional.isPresent()) {
+            Person person = personOptional.get();
+            Optional<Message> messageOptional = person.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst();
+            return new ResponseEntity<>(messageOptional, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    public void deleteMessageOfPerson(int personId, int messageId) {
+        Optional<Person> personOptional = repository.findById(personId);
+        if(personOptional.isPresent()) {
+            Person person = personOptional.get();
+            person.getMessages().removeIf(msg -> msg.getId() == messageId);
+            repository.save(person);
+        }
+    }
 }
