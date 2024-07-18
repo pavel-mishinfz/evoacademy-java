@@ -1,11 +1,11 @@
 package ru.evolenta.location.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.location.model.Location;
 import ru.evolenta.location.repository.LocationRepository;
+import ru.evolenta.location.service.LocationService;
 
 import java.util.Optional;
 
@@ -16,15 +16,12 @@ public class LocationController {
     @Autowired
     private LocationRepository repository;
 
+    @Autowired
+    private LocationService service;
+
     @PostMapping
     public ResponseEntity<Location> save(@RequestBody Location location) {
-        Optional<Location> existingLocation = repository.findById(location.getId());
-        if (existingLocation.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(existingLocation.get());
-        }
-        existingLocation = repository.findLocationByNameLikeIgnoreCase(location.getName());
-        return existingLocation.map(value -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(value))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.CREATED).body(repository.save(location)));
+        return service.save(location);
     }
 
     @GetMapping("/all")
