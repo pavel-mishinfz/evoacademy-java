@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.evolenta.person.model.Person;
 import ru.evolenta.person.repository.PersonRepository;
 
+import java.util.Optional;
+
 @Service
 public class PersonService {
 
@@ -14,8 +16,8 @@ public class PersonService {
     private PersonRepository repository;
 
     public ResponseEntity<Person> save(Person person) {
-        return repository.findById(person.getId()).isPresent()
-                ? new ResponseEntity<>(repository.findById(person.getId()).get(), HttpStatus.BAD_REQUEST)
-                : new ResponseEntity<>(repository.save(person), HttpStatus.CREATED);
+        Optional<Person> personOptional = repository.findById(person.getId());
+        return personOptional.map(value -> ResponseEntity.badRequest().body(value))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.CREATED).body(repository.save(person)));
     }
 }

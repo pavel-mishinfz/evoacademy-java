@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 import ru.evolenta.weather.model.Main;
 import ru.evolenta.weather.model.Root;
 
+import java.util.Objects;
+
 @RestController
 public class WeatherController {
 
@@ -22,6 +24,6 @@ public class WeatherController {
     @Cacheable("weather")
     public Main getWeather(@RequestParam String lat, @RequestParam String lon) {
         String request = String.format("%s?lat=%s&lon=%s&units=metric&appid=%s", urlWeather, lat, lon, appId);
-        return restTemplate.getForObject(request, Root.class).getMain();
+        return Objects.requireNonNull(restTemplate.getForObject(request, Root.class)).getMain();
     }
 }

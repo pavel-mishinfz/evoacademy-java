@@ -14,9 +14,7 @@ public class Location {
     @Id @GeneratedValue
     private int id;
 
-    @Column(unique = true)
-    @NonNull
-    private String name;
+    @NonNull private String name;
     @NonNull private Double latitude;
     @NonNull private Double longitude;
 
