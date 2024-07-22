@@ -1,6 +1,7 @@
 package ru.evolenta.location.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ public class LocationService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Value("${weather.url}")
+    private String weatherUrl;
 
     public ResponseEntity<Location> save(Location location) {
         Optional<Location> locationOptional = repository.findById(location.getId());
@@ -39,7 +43,7 @@ public class LocationService {
         Optional<Location> locationOptional = repository.findByName(name);
         if (locationOptional.isPresent()) {
             Location location = locationOptional.get();
-            String url = String.format("http://localhost:8082/weather?lat=%s&lon=%s", location.getLatitude(), location.getLongitude());
+            String url = String.format("%s?lat=%s&lon=%s", weatherUrl, location.getLatitude(), location.getLongitude());
             return ResponseEntity.ok().body(restTemplate.getForObject(url, Weather.class));
         }
         return ResponseEntity.notFound().build();
