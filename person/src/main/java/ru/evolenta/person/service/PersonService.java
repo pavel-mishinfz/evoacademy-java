@@ -42,7 +42,7 @@ public class PersonService {
     public ResponseEntity<Weather> getWeather(int id) {
         Optional<Person> person = repository.findById(id);
         if (person.isPresent()) {
-            String location = person.get().getLocationName();
+            String location = person.get().getLocation();
             Weather weather = restTemplate.getForObject(locationUrl + location, Weather.class);
             return ResponseEntity.ok().body(weather);
         }
