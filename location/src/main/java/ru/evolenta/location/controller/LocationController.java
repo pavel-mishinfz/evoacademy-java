@@ -2,8 +2,10 @@ package ru.evolenta.location.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.location.model.Location;
+import ru.evolenta.location.model.Weather;
 import ru.evolenta.location.repository.LocationRepository;
 import ru.evolenta.location.service.LocationService;
 
@@ -24,7 +26,7 @@ public class LocationController {
         return service.save(location);
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public Iterable<Location> findAll() {
         return repository.findAll();
     }
@@ -34,9 +36,25 @@ public class LocationController {
         return repository.findById(id);
     }
 
-    @GetMapping
+    @GetMapping(params = "name")
     public Optional<Location> findByName(@RequestParam("name") String  name) {
-        return repository.findLocationByNameLikeIgnoreCase(name);
+        return repository.findByName(name);
+    }
+
+    @PutMapping
+    public ResponseEntity<Location> updateByName(@RequestParam String name, @RequestBody Location location) {
+        return service.updateByName(name, location);
+    }
+
+    @DeleteMapping
+    @Transactional
+    public void deleteByName(@RequestParam String name) {
+        repository.deleteByName(name);
+    }
+
+    @GetMapping("/weather")
+    public ResponseEntity<Weather> redirectRequestWeather(@RequestParam String name) {
+        return service.redirectRequestWeather(name);
     }
 
 }

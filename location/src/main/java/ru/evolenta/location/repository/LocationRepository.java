@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface LocationRepository extends CrudRepository<Location, Integer> {
-    Optional<Location> findLocationByNameLikeIgnoreCase(String name);
+    Optional<Location> findByName(String name);
+    void deleteByName(String name);
 }
