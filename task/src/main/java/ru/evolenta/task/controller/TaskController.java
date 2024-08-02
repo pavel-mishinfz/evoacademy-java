@@ -9,6 +9,8 @@ import ru.evolenta.task.model.Task;
 import ru.evolenta.task.repository.TaskRepository;
 import ru.evolenta.task.service.TaskService;
 
+import java.time.LocalDateTime;
+
 
 @RestController
 @RequestMapping("/task")
@@ -33,6 +35,14 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTask(@PathVariable int id) {
         return service.getTask(id);
+    }
+
+    @GetMapping("/topical")
+    public Iterable<Task> getTopicalTasks(
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate
+    ) {
+        return service.getTopicalTasks(startDate, endDate);
     }
 
     @PutMapping("/{id}")

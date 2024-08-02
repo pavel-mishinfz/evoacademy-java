@@ -31,7 +31,7 @@ public class TaskService {
             return ResponseEntity.badRequest().build();
         }
 
-        Status status = statusRepository.findById(1).get();
+        Status status = statusRepository.findByName("Новая").get();
         Task task = new Task(
                 createTaskRequest.getTitle(),
                 createTaskRequest.getDescription(),
@@ -45,6 +45,20 @@ public class TaskService {
     public ResponseEntity<Task> getTask(int id) {
         Optional<Task> taskOptional = taskRepository.findById(id);
         return taskOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    public Iterable<Task> getTopicalTasks(LocalDateTime startDate, LocalDateTime endDate) {
+        Status status = statusRepository.findByName("Завершена").get();
+        if(startDate == null && endDate == null) {
+            return taskRepository.findAllByStatusOrderByCompletionDateAsc(status);
+        }
+        else if(startDate != null && endDate == null) {
+            return taskRepository.findAllByStatusAndCreateDateIsGreaterThanEqualOrderByCompletionDateAsc(status, startDate);
+        }
+        else if(startDate == null && endDate != null) {
+            return taskRepository.findAllByStatusAndCreateDateIsLessThanEqualOrderByCompletionDateAsc(status, endDate);
+        }
+        return taskRepository.findAllByStatusAndCreateDateBetweenOrderByCompletionDateAsc(status, startDate, endDate);
     }
 
     public ResponseEntity<Task> updateTask(int id, UpdateTaskRequest updateTaskRequest) {
