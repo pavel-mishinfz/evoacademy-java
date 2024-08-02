@@ -3,7 +3,7 @@ package ru.evolenta.task.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.evolenta.task.dto.StatusDto;
+import ru.evolenta.task.dto.StatusRequest;
 import ru.evolenta.task.model.Status;
 import ru.evolenta.task.repository.StatusRepository;
 import ru.evolenta.task.service.StatusService;
@@ -19,8 +19,8 @@ public class StatusController {
     private StatusService service;
 
     @PostMapping
-    public ResponseEntity<Status> createStatus(@RequestBody StatusDto statusDto) {
-        return service.createStatus(statusDto);
+    public ResponseEntity<Status> createStatus(@RequestBody StatusRequest statusRequest) {
+        return service.createStatus(statusRequest);
     }
 
     @GetMapping
@@ -34,8 +34,8 @@ public class StatusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Status> updateStatus(@PathVariable int id, @RequestBody StatusDto statusDto) {
-        return service.updateStatus(id, statusDto);
+    public ResponseEntity<Status> updateStatus(@PathVariable int id, @RequestBody StatusRequest statusRequest) {
+        return service.updateStatus(id, statusRequest);
     }
 
     @DeleteMapping("/{id}")

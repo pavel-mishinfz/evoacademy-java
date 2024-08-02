@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.util.List;
 
@@ -16,14 +15,13 @@ import java.util.List;
 public class Status {
     @Id @GeneratedValue
     private int id;
-    @NonNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
     @OneToMany
     @JsonIgnore
     private List<Task> tasks;
 
-    public Status(@NonNull String name) {
+    public Status(String name) {
         this.name = name;
     }
 }

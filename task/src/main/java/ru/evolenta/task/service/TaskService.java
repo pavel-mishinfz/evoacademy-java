@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.evolenta.task.dto.TaskDto;
+import ru.evolenta.task.dto.CreateTaskRequest;
+import ru.evolenta.task.dto.UpdateTaskRequest;
 import ru.evolenta.task.model.Status;
 import ru.evolenta.task.model.Task;
 import ru.evolenta.task.repository.StatusRepository;
@@ -23,24 +24,19 @@ public class TaskService {
     @Autowired
     private StatusRepository statusRepository;
 
-    public ResponseEntity<Task> createTask(TaskDto taskDto) {
-        Optional<Status> statusOptional = statusRepository.findById(taskDto.getStatusId());
-        if (statusOptional.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<Task> createTask(CreateTaskRequest createTaskRequest) {
         LocalDateTime dateTimeNow = LocalDateTime.now();
-        LocalDateTime completionDate = taskDto.getCompletionDate();
+        LocalDateTime completionDate = createTaskRequest.getCompletionDate();
         if (dateTimeNow.isAfter(completionDate)) {
             return ResponseEntity.badRequest().build();
         }
 
-        Status status = statusOptional.get();
+        Status status = statusRepository.findById(1).get();
         Task task = new Task(
-                taskDto.getTitle(),
-                taskDto.getDescription(),
+                createTaskRequest.getTitle(),
+                createTaskRequest.getDescription(),
                 dateTimeNow,
-                taskDto.getCompletionDate(),
+                createTaskRequest.getCompletionDate(),
                 status
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(taskRepository.save(task));
@@ -51,13 +47,13 @@ public class TaskService {
         return taskOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    public ResponseEntity<Task> updateTask(int id, TaskDto taskDto) {
+    public ResponseEntity<Task> updateTask(int id, UpdateTaskRequest updateTaskRequest) {
         Optional<Task> taskOptional = taskRepository.findById(id);
         if (taskOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        Optional<Status> statusOptional = statusRepository.findById(taskDto.getStatusId());
+        Optional<Status> statusOptional = statusRepository.findById(updateTaskRequest.getStatusId());
         if (statusOptional.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -66,12 +62,12 @@ public class TaskService {
         Task updatedTask = taskOptional.get();
 
         LocalDateTime createDate = updatedTask.getCreateDate();
-        LocalDateTime newCompletionDate = taskDto.getCompletionDate();
+        LocalDateTime newCompletionDate = updateTaskRequest.getCompletionDate();
         if (createDate.isAfter(newCompletionDate)) {
             return ResponseEntity.badRequest().build();
         }
 
-        BeanUtils.copyProperties(taskDto, updatedTask, "statusId");
+        BeanUtils.copyProperties(updateTaskRequest, updatedTask, "statusId");
         updatedTask.setStatus(status);
         return ResponseEntity.ok(taskRepository.save(updatedTask));
     }

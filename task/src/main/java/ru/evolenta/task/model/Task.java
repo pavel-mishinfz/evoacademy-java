@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.time.LocalDateTime;
 
@@ -15,19 +14,27 @@ import java.time.LocalDateTime;
 public class Task {
     @Id @GeneratedValue
     private int id;
-    @NonNull
+
+    @Column(nullable = false)
     private String title;
-    @NonNull
+
+    @Column(nullable = false)
     private String description;
-    @NonNull
+
+    @Column(nullable = false)
     private LocalDateTime createDate;
-    @NonNull
+
+    @Column(nullable = false)
     private LocalDateTime completionDate;
+
+//    @Column(nullable = false)
+//    private Long userId;
+
     @ManyToOne
-    @NonNull
+    @JoinColumn(nullable = false)
     private Status status;
 
-    public Task(@NonNull String title, @NonNull String description, @NonNull LocalDateTime createDate, @NonNull LocalDateTime completionDate, @NonNull Status status) {
+    public Task(String title, String description, LocalDateTime createDate, LocalDateTime completionDate, Status status) {
         this.title = title;
         this.description = description;
         this.createDate = createDate;
