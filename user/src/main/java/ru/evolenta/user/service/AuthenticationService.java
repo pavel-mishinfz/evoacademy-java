@@ -39,7 +39,7 @@ public class AuthenticationService {
                 .role(Role.ROLE_USER)
                 .build();
 
-        if (userService.createUser(user) == null) {
+        if(userService.createUser(user).getStatusCode().isSameCodeAs(HttpStatus.BAD_REQUEST)) {
             return ResponseEntity.badRequest().build();
         }
 
