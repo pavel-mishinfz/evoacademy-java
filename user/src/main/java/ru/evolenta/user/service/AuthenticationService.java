@@ -83,7 +83,7 @@ public class AuthenticationService {
         HttpEntity<LogRequest> requestEntity = new HttpEntity<>(logRequest, headers);
 
         restTemplate.exchange(
-                "http://localhost:8083/logger",
+                "http://logger-service/logger",
                 HttpMethod.POST,
                 requestEntity,
                 Void.class
