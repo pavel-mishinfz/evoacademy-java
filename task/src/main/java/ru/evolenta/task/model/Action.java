@@ -1,8 +1,6 @@
-package ru.evolenta.logger.model;
+package ru.evolenta.task.model;
 
 public enum Action {
-    SIGN_UP,
-    AUTH,
     CREATE,
     UPDATE,
     DELETE

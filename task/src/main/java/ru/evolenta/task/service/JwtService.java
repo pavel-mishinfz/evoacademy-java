@@ -33,7 +33,7 @@ public class JwtService {
      */
     public String extractUserRole(String token) {
         final Claims claims = extractAllClaims(token);
-        return (String) claims.get("role");
+        return claims.get("role").toString();
     }
 
     /**
