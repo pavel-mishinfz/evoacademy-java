@@ -38,6 +38,11 @@ public class UserController {
         return service.getUser(id);
     }
 
+    @GetMapping(params = "username")
+    public ResponseEntity<User> getUserByUsername(@RequestParam String username) {
+        return service.getUserByUsername(username);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable long id, @RequestBody UpdateUserRequest updateUserRequest) {
         return service.updateUser(id, updateUserRequest);

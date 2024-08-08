@@ -59,6 +59,11 @@ public class UserService {
         return userOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    public ResponseEntity<User> getUserByUsername(String username) {
+        Optional<User> userOptional = repository.findByUsername(username);
+        return userOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     public ResponseEntity<User> updateUser(long id, UpdateUserRequest userRequest) {
         Optional<User> userOptional = repository.findById(id);
         if(userOptional.isEmpty()) {
