@@ -24,6 +24,7 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/status", "/status/*").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
