@@ -1,11 +1,9 @@
 package ru.evolenta.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,7 +47,7 @@ public class AuthenticationService {
         }
 
         String jwt = jwtService.generateToken(user);
-        createLog(Action.SIGN_UP);
+        createLog(Action.SIGN_UP, jwt);
         return ResponseEntity.status(HttpStatus.CREATED).body(new JwtAuthenticationResponse(jwt));
     }
 
@@ -70,15 +68,25 @@ public class AuthenticationService {
                 .loadUserByUsername(request.getUsername());
 
         String jwt = jwtService.generateToken(user);
-        createLog(Action.AUTH);
+        createLog(Action.AUTH, jwt);
         return new JwtAuthenticationResponse(jwt);
     }
 
-    private void createLog(Action action) {
+    private void createLog(Action action, String token) {
         LogRequest logRequest = new LogRequest();
-        logRequest.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        logRequest.setUsername(jwtService.extractUserName(token));
         logRequest.setAction(action);
 
-        restTemplate.postForEntity("http://localhost:8083/logger", logRequest, Void.class);
+        // Создание заголовков и добавление JWT токена
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<LogRequest> requestEntity = new HttpEntity<>(logRequest, headers);
+
+        restTemplate.exchange(
+                "http://localhost:8083/logger",
+                HttpMethod.POST,
+                requestEntity,
+                Void.class
+        );
     }
 }

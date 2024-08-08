@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @Repository
 public interface TaskRepository extends CrudRepository<Task, Integer> {
     Iterable<Task> findAllByOrderByCreateDateAsc();
-    Iterable<Task> findAllByStatusOrderByCompletionDateAsc(Status status);
-    Iterable<Task> findAllByStatusAndCreateDateIsGreaterThanEqualOrderByCompletionDateAsc(
+    Iterable<Task> findAllByStatusNotOrderByCompletionDateAsc(Status status);
+    Iterable<Task> findAllByStatusNotAndCreateDateIsGreaterThanEqualOrderByCompletionDateAsc(
             Status status, LocalDateTime start
     );
-    Iterable<Task> findAllByStatusAndCreateDateIsLessThanEqualOrderByCompletionDateAsc(
+    Iterable<Task> findAllByStatusNotAndCreateDateIsLessThanEqualOrderByCompletionDateAsc(
             Status status, LocalDateTime end
     );
-    Iterable<Task> findAllByStatusAndCreateDateBetweenOrderByCompletionDateAsc(
+    Iterable<Task> findAllByStatusNotAndCreateDateBetweenOrderByCompletionDateAsc(
             Status status, LocalDateTime start, LocalDateTime end
     );
 }

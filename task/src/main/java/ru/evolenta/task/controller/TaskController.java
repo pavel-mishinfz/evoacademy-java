@@ -1,6 +1,7 @@
 package ru.evolenta.task.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.task.dto.CreateTaskRequest;
@@ -23,8 +24,11 @@ public class TaskController {
     private TaskService service;
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody CreateTaskRequest createTaskRequest) {
-        return service.createTask(createTaskRequest);
+    public ResponseEntity<Task> createTask(
+            @RequestBody CreateTaskRequest createTaskRequest,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+    ) {
+        return service.createTask(createTaskRequest, authHeader);
     }
 
     @GetMapping
@@ -46,12 +50,19 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable int id, @RequestBody UpdateTaskRequest updateTaskRequest) {
-        return service.updateTask(id, updateTaskRequest);
+    public ResponseEntity<Task> updateTask(
+            @PathVariable int id,
+            @RequestBody UpdateTaskRequest updateTaskRequest,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+    ) {
+        return service.updateTask(id, updateTaskRequest, authHeader);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Task> deleteTask(@PathVariable int id) {
-        return service.deleteTask(id);
+    public ResponseEntity<Task> deleteTask(
+            @PathVariable int id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+    ) {
+        return service.deleteTask(id, authHeader);
     }
 }

@@ -2,8 +2,7 @@ package ru.evolenta.task.service;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -31,7 +30,8 @@ public class TaskService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public ResponseEntity<Task> createTask(CreateTaskRequest createTaskRequest) {
+    public ResponseEntity<Task> createTask(CreateTaskRequest createTaskRequest, String authHeader) {
+        String token = authHeader.substring(7);
         LocalDateTime dateTimeNow = LocalDateTime.now();
         LocalDateTime completionDate = createTaskRequest.getCompletionDate();
         if (dateTimeNow.isAfter(completionDate)) {
@@ -47,7 +47,7 @@ public class TaskService {
                 status
         );
         task = taskRepository.save(task);
-        createLog(Action.CREATE, task.getId());
+        createLog(Action.CREATE, task.getId(), token);
         return ResponseEntity.status(HttpStatus.CREATED).body(task);
     }
 
@@ -59,18 +59,19 @@ public class TaskService {
     public Iterable<Task> getTopicalTasks(LocalDateTime startDate, LocalDateTime endDate) {
         Status status = statusRepository.findByName("Завершена").get();
         if(startDate == null && endDate == null) {
-            return taskRepository.findAllByStatusOrderByCompletionDateAsc(status);
+            return taskRepository.findAllByStatusNotOrderByCompletionDateAsc(status);
         }
         else if(startDate != null && endDate == null) {
-            return taskRepository.findAllByStatusAndCreateDateIsGreaterThanEqualOrderByCompletionDateAsc(status, startDate);
+            return taskRepository.findAllByStatusNotAndCreateDateIsGreaterThanEqualOrderByCompletionDateAsc(status, startDate);
         }
         else if(startDate == null && endDate != null) {
-            return taskRepository.findAllByStatusAndCreateDateIsLessThanEqualOrderByCompletionDateAsc(status, endDate);
+            return taskRepository.findAllByStatusNotAndCreateDateIsLessThanEqualOrderByCompletionDateAsc(status, endDate);
         }
-        return taskRepository.findAllByStatusAndCreateDateBetweenOrderByCompletionDateAsc(status, startDate, endDate);
+        return taskRepository.findAllByStatusNotAndCreateDateBetweenOrderByCompletionDateAsc(status, startDate, endDate);
     }
 
-    public ResponseEntity<Task> updateTask(int id, UpdateTaskRequest updateTaskRequest) {
+    public ResponseEntity<Task> updateTask(int id, UpdateTaskRequest updateTaskRequest, String authHeader) {
+        String token = authHeader.substring(7);
         Optional<Task> taskOptional = taskRepository.findById(id);
         if (taskOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -92,27 +93,38 @@ public class TaskService {
 
         BeanUtils.copyProperties(updateTaskRequest, updatedTask, "statusId");
         updatedTask.setStatus(status);
-        createLog(Action.UPDATE, updatedTask.getId());
+        createLog(Action.UPDATE, updatedTask.getId(), token);
         return ResponseEntity.ok(taskRepository.save(updatedTask));
     }
 
-    public ResponseEntity<Task> deleteTask(int id) {
+    public ResponseEntity<Task> deleteTask(int id, String authHeader) {
+        String token = authHeader.substring(7);
         Optional<Task> taskOptional = taskRepository.findById(id);
         if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
             taskRepository.deleteById(id);
-            createLog(Action.DELETE, task.getId());
+            createLog(Action.DELETE, task.getId(), token);
             return ResponseEntity.ok().body(task);
         }
         return ResponseEntity.notFound().build();
     }
 
-    private void createLog(Action action, Integer taskId) {
+    private void createLog(Action action, Integer taskId, String token) {
         LogRequest logRequest = new LogRequest();
         logRequest.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         logRequest.setAction(action);
         logRequest.setTaskId(taskId);
 
-        restTemplate.postForEntity("http://localhost:8083/logger", logRequest, Void.class);
+        // Создание заголовков и добавление JWT токена
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<LogRequest> requestEntity = new HttpEntity<>(logRequest, headers);
+
+        restTemplate.exchange(
+                "http://localhost:8083/logger",
+                HttpMethod.POST,
+                requestEntity,
+                Void.class
+        );
     }
 }
