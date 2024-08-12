@@ -16,6 +16,7 @@ import ru.evolenta.task.repository.StatusRepository;
 import ru.evolenta.task.repository.TaskRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -41,14 +42,17 @@ public class TaskService {
             return ResponseEntity.badRequest().build();
         }
 
-        Status status = statusRepository.findByName("Новая").get();
+        Optional<Status> statusOptional = statusRepository.findByName("Новая");
+        if (statusOptional.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         Task task = new Task(
                 createTaskRequest.getTitle(),
                 createTaskRequest.getDescription(),
                 dateTimeNow,
                 createTaskRequest.getCompletionDate(),
                 jwtService.extractUserId(token),
-                status
+                statusOptional.get()
         );
         task = taskRepository.save(task);
         createLog(Action.CREATE, task.getId(), token);
@@ -61,7 +65,11 @@ public class TaskService {
     }
 
     public Iterable<Task> getTopicalTasks(LocalDateTime startDate, LocalDateTime endDate) {
-        Status status = statusRepository.findByName("Завершена").get();
+        Optional<Status> statusOptional = statusRepository.findByName("Завершена");
+        if (statusOptional.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Status status = statusOptional.get();
         if(startDate == null && endDate == null) {
             return taskRepository.findAllByStatusNotOrderByCompletionDateAsc(status);
         }
