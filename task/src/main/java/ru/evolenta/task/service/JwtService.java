@@ -16,6 +16,17 @@ public class JwtService {
     private String jwtSecret;
 
     /**
+     * Извлечение id пользователя из токена
+     *
+     * @param token токен
+     * @return id пользователя
+     */
+    public Long extractUserId(String token) {
+        final Claims claims = extractAllClaims(token);
+        return Long.parseLong(claims.get("id").toString());
+    }
+
+    /**
      * Извлечение имени пользователя из токена
      *
      * @param token токен

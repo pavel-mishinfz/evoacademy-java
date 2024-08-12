@@ -30,6 +30,9 @@ public class TaskService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private JwtService jwtService;
+
     public ResponseEntity<Task> createTask(CreateTaskRequest createTaskRequest, String authHeader) {
         String token = authHeader.substring(7);
         LocalDateTime dateTimeNow = LocalDateTime.now();
@@ -44,6 +47,7 @@ public class TaskService {
                 createTaskRequest.getDescription(),
                 dateTimeNow,
                 createTaskRequest.getCompletionDate(),
+                jwtService.extractUserId(token),
                 status
         );
         task = taskRepository.save(task);
@@ -77,6 +81,10 @@ public class TaskService {
             return ResponseEntity.notFound().build();
         }
 
+        if(!taskOptional.get().getUserId().equals(jwtService.extractUserId(token))) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Optional<Status> statusOptional = statusRepository.findById(updateTaskRequest.getStatusId());
         if (statusOptional.isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -101,6 +109,11 @@ public class TaskService {
         String token = authHeader.substring(7);
         Optional<Task> taskOptional = taskRepository.findById(id);
         if (taskOptional.isPresent()) {
+
+            if(!taskOptional.get().getUserId().equals(jwtService.extractUserId(token))) {
+                return ResponseEntity.badRequest().build();
+            }
+
             Task task = taskOptional.get();
             taskRepository.deleteById(id);
             createLog(Action.DELETE, task.getId(), token);

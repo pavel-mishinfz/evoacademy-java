@@ -27,18 +27,19 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime completionDate;
 
-//    @Column(nullable = false)
-//    private Long userId;
+    @Column(nullable = false)
+    private Long userId;
 
     @ManyToOne
     @JoinColumn(nullable = false)
     private Status status;
 
-    public Task(String title, String description, LocalDateTime createDate, LocalDateTime completionDate, Status status) {
+    public Task(String title, String description, LocalDateTime createDate, LocalDateTime completionDate, Long userId, Status status) {
         this.title = title;
         this.description = description;
         this.createDate = createDate;
         this.completionDate = completionDate;
+        this.userId = userId;
         this.status = status;
     }
 }
