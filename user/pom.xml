@@ -81,7 +81,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!--	Оркестратор 	-->
+		<!--	Discovery Server 	-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
