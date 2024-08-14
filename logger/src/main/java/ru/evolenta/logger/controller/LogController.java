@@ -1,6 +1,7 @@
 package ru.evolenta.logger.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.evolenta.logger.dto.LogRequest;
@@ -36,5 +37,19 @@ public class LogController {
             @RequestParam(required = false) LocalDateTime endDate
     ) {
         return service.getLogs(startDate, endDate);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Log> updateLog(
+            @PathVariable long id,
+            @RequestBody LogRequest logRequest,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+    ) {
+        return service.updateLog(id, logRequest, authHeader);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Log> deleteLog(@PathVariable long id) {
+        return service.deleteLog(id);
     }
 }

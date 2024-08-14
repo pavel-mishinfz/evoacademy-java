@@ -26,6 +26,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/logger**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/logger/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/logger/*").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
